@@ -1,6 +1,7 @@
 # MongoDB from Basic to Advanced
 
 # [MongoDocs Click here](mongoDB.md)
+# [MongoDB Atlas ](MongoDBAtlas.md)
 
 ## 🌐 Socials:
 [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?logo=Facebook&logoColor=white)](https://facebook.com/AtanuPramaik) 

@@ -46,9 +46,9 @@ here document-oriented means this database stores its data in the form of docume
 
 MongoDB is designed for flexibility ,scalibility and performance handling unstructured or semi structured data.
 
-##  10gen company build this MongoDB. and now its name is mongoDB the company was founded by - _Eliot Horowitz_ and _Merriman_ in 2007 and the first version to mongoDB was released in 2009 .
+##  10gen company build this MongoDB. and now its name is mongoDB the company was founded by - _```Eliot Horowitz```_ and _```Merriman```_ in 2007 and the first version to mongoDB was released in 2009 .
 
-### MONGO name was came from 'HUMONGUOS' word. which means - huge 
+### MONGO name was came from ```'HUMONGUOS'``` word. which means - huge 
 
 ## 2. SQL VS MongoDB (NoSQL).
 
@@ -686,3 +686,210 @@ _in MongoDB, the DELETE operations are used to remove documents from a collectio
                         priceAvg: {$avg: "$price"},
                 },
         },]);
+
+*
+ ```
+db.data.aggregate([ { $match: {'name': 'Joe'} } , { $group: { _id: "$name", avgrageAge: { $avg: "$age" } } }] );
+
+```
+## c . ```$sort```
+syntax: 
+        
+        db.collectionName.aggregate({
+                {$sort: {totalProducts: 1}}
+        });
+
+* use ```1``` for increasing order and ```-1``` for decreasing order.
+
+* ```Example code:```
+
+                db.product.aggregate([
+         {$match:{price:{$gt: 1200}}},
+        {$group:{
+        _id:"$catagory",
+        totalPrice: {$sum: "$price"},
+        }},
+        {
+        $sort:{
+            totalPrice: 1
+        },
+            },
+        ]);
+
+## d . ```$Project```        
+
+- The $project stage reshapes documents. includes or exclude fields, and performs .operations on fields. 
+
+ 
+```
+{$project:{<field>:<expressions>,..}}
+```
+
+```Examples:```
+-       
+
+        db.product.aggregate([
+                {$project:{
+                        name:1, discountPrice:{$subtract:{"$price",5}}
+                }}
+        ]);
+
+projects the name field and calculates a discounted price field by subtracting 5 from the price , 
+- ```$sum```,```$subtract```,```$multiply```,```$avg```, etc are types of expressions operator.
+
+## ```e. $unwind```
+- The ```$unwind``` stage deconstructs an array field and products multiple documents
+
+- 
+```
+{$unwind: <array>}
+```
+
+```
+db.product.aggregate([
+        {$unwind: '$colors'},
+        {$group: {
+                _id: {company:'$company'},
+                products:{$push:"$colors"}
+        }}
+]);
+```
+## f . $addToSet
+
+- The $addToSet adds elements to an array field while preventing duplicates.
+
+- 
+```
+db.data.aggregate([
+     {$unwind:'$color'},
+     {$match:{age:{$gt: 42}}},
+     {
+         $group:{
+             _id: '$age',
+             allColors: {$addToSet:'$color'}
+         }
+     }
+ ]);
+```
+## g . $size
+
+- The $size stage calculates the length of an array field
+
+```
+{$size:<array>}
+```
+- we can't use $size inside $group bcz the $size operator is not allowed directly within the $group stage, Instade , you can use it in combination with other aggregation operatous or in separate pipeline stages.
+
+-       db.data.aggregate([
+         {$unwind:'$color'},
+        {$match:{age:{$gt: 42}}},
+        {
+        $group:{
+            _id: '$age',
+            allColors: {$addToSet:'$color'},
+            
+        }
+        },
+        {
+        $project:{
+            _id:1,
+            color:1,
+            colorLength: { $size: "$allColors"},
+        }
+        }
+        ]);
+
+## h. ```$limit``` and ```$skip```
+
+- The $limit and $skip stages are useful for pagination , limitation skipping results.
+
+-       {$limit <positive integer>}
+
+- ```Example :```
+
+```
+
+db.data.aggregate([
+    {$unwind:'$color'},
+    {$match:{age:{$gt: 42}}},
+    {
+        $group:{
+            _id: '$age',
+            allColors: {$addToSet:'$color'},
+            
+        }
+    },
+    {
+        $project:{
+            _id:1,
+            color:1,
+            colorLength: { $size: "$allColors"},
+        }
+    },
+    {
+        $limit: 1
+    }
+]);
+
+```
+
+- ```$skip Example :```
+
+```
+
+db.data.aggregate([
+    {$unwind:'$color'},
+    {$match:{age:{$gt: 42}}},
+    {
+        $group:{
+            _id: '$age',
+            allColors: {$addToSet:'$color'},
+            
+        }
+    },
+    {
+        $project:{
+            _id:1,
+            color:1,
+            colorLength: { $size: "$allColors"},
+        }
+    },
+    {
+        $skip: 1
+    }
+]);
+```
+## i . ```$filter```
+
+- The ```$filter``` is stage fiters elements of an array based on specified conditions.
+
+```
+{
+    $project: {<field>:{
+            $filter :{
+                input: '$<array>',
+                as: '<variable>'
+                cond: <expressions>
+            }
+        }}
+}
+
+```
+
+- ```Sample Example :```
+
+```
+db.col.aggregate([
+    {
+        $project: {
+            name: 1,
+            atenix: {
+                $filter:{
+                    input: '$filter',
+                    as: ValidityState,
+                    cond: {$gt: ['$$val',30]}
+            }
+        }
+    }
+}])
+```
